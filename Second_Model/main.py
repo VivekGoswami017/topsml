@@ -4,7 +4,7 @@ import joblib
 
 app = FastAPI()
 
-model = joblib.load("Second_Model/linear_model.pkl")
+model = joblib.load("linear_model.pkl")
 
 class datascience(BaseModel): 
     AdvertisingBudget:float 
