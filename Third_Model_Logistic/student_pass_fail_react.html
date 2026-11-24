@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Predictor | Single Page React App</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- React 18 & Babel CDN for Zero-Setup Instant Browser Execution -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+      
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #121829;
+      --bg-card: rgba(23, 31, 51, 0.75);
+      
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --primary-dark: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      
+      --accent-cyan: #06b6d4;
+      --accent-purple: #a855f7;
+      
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --success-border: rgba(16, 185, 129, 0.35);
+      --success-glow: rgba(16, 185, 129, 0.25);
+      
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --danger-border: rgba(239, 68, 68, 0.35);
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(255, 255, 255, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 10%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 90%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Header */
+    .header-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(10, 14, 26, 0.85);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px var(--primary-glow);
+      color: #fff;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-tagline {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      color: var(--primary-light);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Body */
+    .main-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      position: relative;
+    }
+
+    .page-decoration-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 540px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 
+        0 20px 50px -10px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .card-container:hover {
+      border-color: var(--border-highlight);
+      box-shadow: 
+        0 25px 60px -10px rgba(0, 0, 0, 0.7),
+        0 0 30px var(--primary-glow);
+    }
+
+    .card-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card-subtitle {
+      font-size: 0.93rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* Single Form */
+    .single-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      text-align: left;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .label-hint {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-weight: normal;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon-left {
+      position: absolute;
+      left: 1.1rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1.05rem 1.1rem 1.05rem 3.1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: rgba(13, 19, 33, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      background: rgba(17, 24, 39, 0.95);
+      box-shadow: 
+        0 0 0 4px var(--primary-glow),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .preset-section {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: -0.5rem;
+    }
+
+    .preset-title {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .preset-chip {
+      padding: 0.25rem 0.65rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-chip:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-light);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      padding: 1rem 1.75rem;
+      border-radius: 14px;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+      box-shadow: 
+        0 6px 20px -2px var(--primary-glow),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 10px 25px -2px rgba(99, 102, 241, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Result Box */
+    .result-box {
+      margin-top: 1.5rem;
+      padding: 1.4rem;
+      border-radius: 16px;
+      animation: slide-up 0.35s ease forwards;
+    }
+
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-pass {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      box-shadow: 0 8px 30px var(--success-glow);
+    }
+
+    .result-fail {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      box-shadow: 0 8px 30px var(--danger-glow);
+    }
+
+    .result-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .result-pass .result-badge { color: #34d399; }
+    .result-fail .result-badge { color: #f87171; }
+
+    .result-prob-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .result-pass .result-prob-badge {
+      color: #a7f3d0;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .result-fail .result-prob-badge {
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+
+    .result-message {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+    }
+
+    .prob-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 0.65rem;
+    }
+
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.6s ease;
+    }
+
+    .result-pass .prob-bar-fill {
+      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    }
+
+    .result-fail .prob-bar-fill {
+      background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+    }
+
+    .result-meta-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      padding-top: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Footer */
+    .footer-wrapper {
+      backdrop-filter: blur(12px);
+      background: rgba(10, 14, 26, 0.9);
+      border-top: 1px solid var(--border-subtle);
+      padding: 2rem 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      text-align: center;
+    }
+
+    .footer-formula {
+      font-family: monospace;
+      font-size: 0.82rem;
+      padding: 0.35rem 0.9rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--accent-cyan);
+    }
+
+    .footer-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 1.2rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .footer-tags {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .footer-tag {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.74rem;
+    }
+
+    @media (max-width: 640px) {
+      .header-inner { padding: 1rem; }
+      .card-container { padding: 1.75rem 1.25rem; border-radius: 20px; }
+      .card-title { font-size: 1.5rem; }
+      .footer-bottom-row { flex-direction: column; gap: 0.75rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React 18 Script using Babel -->
+  <script type="text/babel">
+    const { useState } = React;
+
+    // 1. Header Component
+    function Header() {
+      return (
+        <header className="header-wrapper">
+          <div className="header-inner">
+            <div className="brand-section">
+              <div className="brand-icon-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+              </div>
+              <div>
+                <h1 className="brand-title">EduPredict AI</h1>
+                <p className="brand-tagline">Student Performance Analytics Portal</p>
+              </div>
+            </div>
+
+            <div className="header-status-badge">
+              <span className="status-dot"></span>
+              <span>Logistic Model Ready</span>
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    // 2. The Single Form Component (Inside Body)
+    function PredictionForm() {
+      const [studyHours, setStudyHours] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [result, setResult] = useState(null);
+      const [error, setError] = useState('');
+
+      const calculateLocalPrediction = (hours) => {
+        // Model weights from Logistic_model.pkl
+        const z = (1.12160441 * hours) - 6.10225618;
+        const probability = 1 / (1 + Math.exp(-z));
+        const isPass = probability >= 0.5;
+        return {
+          status: isPass ? 'Pass' : 'Fail',
+          code: isPass ? 1 : 0,
+          probability: (probability * 100).toFixed(1),
+          source: 'Client ML Engine'
+        };
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        const hours = parseFloat(studyHours);
+        if (isNaN(hours) || hours < 0) {
+          setError('Please enter a valid study hour (0 or greater).');
+          return;
+        }
+
+        if (hours > 24) {
+          setError('Study hours cannot exceed 24 hours per day.');
+          return;
+        }
+
+        setLoading(true);
+
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+          const response = await fetch('http://localhost:8000/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ StudyHours: hours }),
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const data = await response.json();
+            const isPass = Math.round(data.predicted_Result) === 1;
+            const local = calculateLocalPrediction(hours);
+            setResult({
+              status: isPass ? 'Pass' : 'Fail',
+              code: isPass ? 1 : 0,
+              probability: local.probability,
+              source: 'FastAPI Server (Live Model)'
+            });
+          } else {
+            throw new Error();
+          }
+        } catch {
+          const local = calculateLocalPrediction(hours);
+          setResult(local);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="card-container">
+          <div className="card-header-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            AI Outcome Predictor
+          </div>
+
+          <h2 className="card-title">Student Study Analysis</h2>
+          <p className="card-subtitle">
+            Enter the number of study hours to predict whether the student will pass or fail based on trained logistic regression data.
+          </p>
+
+          {/* 1 FORM IN BODY */}
+          <form onSubmit={handleSubmit} className="single-form">
+            <div className="form-group">
+              {/* 1 LABEL */}
+              <label htmlFor="study-hours" className="form-label">
+                <span>Enter Student Study Hour</span>
+                <span className="label-hint">Range: 0 - 24 hrs</span>
+              </label>
+
+              {/* 1 TEXT FIELD */}
+              <div className="input-wrapper">
+                <span className="input-icon-left">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </span>
+                <input
+                  id="study-hours"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="24"
+                  value={studyHours}
+                  onChange={(e) => {
+                    setStudyHours(e.target.value);
+                    if (error) setError('');
+                  }}
+                  placeholder="e.g. 6.5"
+                  className="form-input"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Quick Presets */}
+            <div className="preset-section">
+              <span className="preset-title">Quick Select:</span>
+              {[2, 4, 5.5, 7, 9].map((hr) => (
+                <button
+                  type="button"
+                  key={hr}
+                  onClick={() => { setStudyHours(hr.toString()); setError(''); }}
+                  className="preset-chip"
+                >
+                  {hr} hrs
+                </button>
+              ))}
+            </div>
+
+            {error && (
+              <div style={{ color: '#f87171', fontSize: '0.85rem', fontWeight: 500, marginTop: '-0.5rem' }}>
+                {error}
+              </div>
+            )}
+
+            {/* 1 BUTTON */}
+            <button
+              type="submit"
+              className="btn-submit"
+              disabled={loading || !studyHours.trim()}
+            >
+              {loading ? (
+                <>
+                  <div className="spinner"></div>
+                  <span>Evaluating Data...</span>
+                </>
+              ) : (
+                <>
+                  <span>Predict Student Result</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* RESULT DISPLAY ON BUTTON CLICK */}
+          {result && (
+            <div className={`result-box ${result.status === 'Pass' ? 'result-pass' : 'result-fail'}`}>
+              <div className="result-top-row">
+                <div className="result-badge">
+                  {result.status === 'Pass' ? (
+                    <>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Student PASS</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      <span>Student FAIL</span>
+                    </>
+                  )}
+                </div>
+
+                <span className="result-prob-badge">
+                  {result.probability}% Confidence
+                </span>
+              </div>
+
+              <p className="result-message">
+                {result.status === 'Pass' ? (
+                  <>
+                    <strong>Congratulations!</strong> With <strong>{studyHours} hours</strong> of study, 
+                    the student has exceeded the passing threshold (~5.44 hrs) and is predicted to <strong>PASS</strong> the exam.
+                  </>
+                ) : (
+                  <>
+                    <strong>Attention Required:</strong> With <strong>{studyHours} hours</strong> of study, 
+                    the student falls below the passing threshold (~5.44 hrs) and is predicted to <strong>FAIL</strong>. Increasing study time is advised.
+                  </>
+                )}
+              </p>
+
+              <div className="prob-bar-container">
+                <div
+                  className="prob-bar-fill"
+                  style={{ width: `${Math.max(5, Math.min(100, result.probability))}%` }}
+                ></div>
+              </div>
+
+              <div className="result-meta-footer">
+                <span>Computed via: {result.source}</span>
+                <span>Threshold: ~5.44 hrs</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 3. Footer Component
+    function Footer() {
+      return (
+        <footer className="footer-wrapper">
+          <div className="footer-inner">
+            <div>
+              <p style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+                Machine Learning Class &bull; Student Pass/Fail Classifier
+              </p>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                Powered by Logistic Regression Classification Algorithm
+              </p>
+            </div>
+
+            <div className="footer-formula">
+              Decision Boundary Function: P(Pass) = 1 / (1 + e<sup>-(1.1216 &times; Hours - 6.1023)</sup>)
+            </div>
+
+            <div className="footer-bottom-row">
+              <span>&copy; {new Date().getFullYear()} Machine Learning Class. All rights reserved.</span>
+              <div className="footer-tags">
+                <span className="footer-tag">React.js</span>
+                <span className="footer-tag">FastAPI</span>
+                <span className="footer-tag">Scikit-Learn</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // 4. Main App Component (Single Page: Header + Body + Footer)
+    function App() {
+      return (
+        <div className="app-container">
+          <Header />
+          <main className="main-content">
+            <div className="page-decoration-glow"></div>
+            <PredictionForm />
+          </main>
+          <Footer />
+        </div>
+      );
+    }
+
+    // Render App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
